@@ -68,7 +68,6 @@ public class EventController {
     }
 
     @PutMapping("/{id}/users/me")
-    @PreAuthorize("hasAuthority('EVENT_MANAGER')")
     public Event addUserToEvent(@AuthenticationPrincipal User user, @PathVariable UUID id) {
         return eventService.addUserToEvent(id, user.getId());
     }
