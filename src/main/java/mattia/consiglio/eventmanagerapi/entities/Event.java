@@ -1,10 +1,7 @@
 package mattia.consiglio.eventmanagerapi.entities;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@EqualsAndHashCode
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -41,4 +39,6 @@ public class Event {
         this.date = date;
         this.availableTickets = availableTickets;
     }
+
+
 }
