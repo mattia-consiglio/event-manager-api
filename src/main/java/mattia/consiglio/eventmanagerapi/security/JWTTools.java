@@ -1,12 +1,12 @@
-package mattiaconsiglio.u5w3d1.security;
+package mattia.consiglio.eventmanagerapi.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
-import mattiaconsiglio.u5w3d1.entities.Employee;
-import mattiaconsiglio.u5w3d1.exceptions.UnauthorizedException;
+import mattia.consiglio.eventmanagerapi.entities.User;
+import mattia.consiglio.eventmanagerapi.exceptions.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -17,13 +17,13 @@ public class JWTTools {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(Employee employee) {
+    public String generateToken(User user) {
 
         long iatMs = System.currentTimeMillis();
         return Jwts.builder()
                 .issuedAt(new Date(iatMs))
                 .expiration(new Date(iatMs + 1000 * 60 * 60))
-                .subject(employee.getId().toString())
+                .subject(user.getId().toString())
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }

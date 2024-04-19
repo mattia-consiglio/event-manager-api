@@ -1,2 +1,7 @@
-package mattia.consiglio.eventmanagerapi.services;public class EventService {
+package mattia.consiglio.eventmanagerapi.services;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class EventService {
 }

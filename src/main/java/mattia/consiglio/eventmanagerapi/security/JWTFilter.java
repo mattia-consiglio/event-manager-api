@@ -1,13 +1,13 @@
-package mattiaconsiglio.u5w3d1.security;
+package mattia.consiglio.eventmanagerapi.security;
 
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import mattiaconsiglio.u5w3d1.entities.Employee;
-import mattiaconsiglio.u5w3d1.exceptions.UnauthorizedException;
-import mattiaconsiglio.u5w3d1.services.EmployeeService;
+import mattia.consiglio.eventmanagerapi.entities.User;
+import mattia.consiglio.eventmanagerapi.exceptions.UnauthorizedException;
+import mattia.consiglio.eventmanagerapi.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,7 +25,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private JWTTools jwtTools;
 
     @Autowired
-    private EmployeeService employeeService;
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -35,8 +35,8 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorizationHeader.substring(7);
         jwtTools.validateToken(token);
         String subject = jwtTools.getSubjectFromToken(token);
-        Employee currenEmployee = employeeService.getEmployee(UUID.fromString(subject));
-        Authentication authentication = new UsernamePasswordAuthenticationToken(currenEmployee, null, currenEmployee.getAuthorities());
+        User user = userService.getUser(UUID.fromString(subject));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
@@ -44,6 +44,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return new AntPathMatcher().match("/api/auth/**", request.getServletPath());
+        return new AntPathMatcher().match("/api/v1/auth/**", request.getServletPath());
     }
 }

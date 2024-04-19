@@ -1,4 +1,4 @@
-package mattiaconsiglio.u5w3d1.config;
+package mattia.consiglio.eventmanagerapi.config;
 
 import com.cloudinary.Cloudinary;
 import org.springframework.beans.factory.annotation.Value;

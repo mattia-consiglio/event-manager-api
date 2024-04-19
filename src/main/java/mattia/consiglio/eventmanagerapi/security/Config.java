@@ -1,4 +1,4 @@
-package mattiaconsiglio.u5w3d1.security;
+package mattia.consiglio.eventmanagerapi.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
