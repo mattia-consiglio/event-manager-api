@@ -26,7 +26,10 @@ public class EventController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public Event createEvent(@RequestBody EventDTO eventDTO) {
+    public Event createEvent(@RequestBody @Validated EventDTO eventDTO, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new BadRequestException("Invalid data", result.getAllErrors());
+        }
         return eventService.createEvent(eventDTO);
     }
 
@@ -70,7 +73,7 @@ public class EventController {
         return eventService.addUserToEvent(id, userId);
     }
 
-    @PutMapping("{id}/users/me}")
+    @PutMapping("{id}/users/me")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
     public Event addUserToEvent(@AuthenticationPrincipal User user, @PathVariable UUID userId) {
         return eventService.addUserToEvent(user.getId(), userId);
