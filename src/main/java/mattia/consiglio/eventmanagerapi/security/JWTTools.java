@@ -22,7 +22,7 @@ public class JWTTools {
         long iatMs = System.currentTimeMillis();
         return Jwts.builder()
                 .issuedAt(new Date(iatMs))
-                .expiration(new Date(iatMs + 1000 * 60 * 60))
+                .expiration(new Date(iatMs + 1000 * 60 * 60)) // 1 hour
                 .subject(user.getId().toString())
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();

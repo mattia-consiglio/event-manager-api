@@ -2,7 +2,9 @@ package mattia.consiglio.eventmanagerapi.contollers;
 
 import mattia.consiglio.eventmanagerapi.entities.User;
 import mattia.consiglio.eventmanagerapi.entities.UserRole;
+import mattia.consiglio.eventmanagerapi.exceptions.BadRequestException;
 import mattia.consiglio.eventmanagerapi.payloads.ChangePasswordDTO;
+import mattia.consiglio.eventmanagerapi.payloads.Role;
 import mattia.consiglio.eventmanagerapi.payloads.UserDTO;
 import mattia.consiglio.eventmanagerapi.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,12 +48,18 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public User updateUser(@PathVariable("id") UUID id, @RequestBody UserDTO user) {
+    public User updateUser(@PathVariable("id") UUID id, @RequestBody @Validated UserDTO user, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
         return userService.updateUser(id, user);
     }
 
     @PutMapping("/me")
-    public User updateMe(@AuthenticationPrincipal User user, @RequestBody UserDTO userDTO) {
+    public User updateMe(@AuthenticationPrincipal User user, @RequestBody @Validated UserDTO userDTO, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
         return userService.updateUser(user.getId(), userDTO);
     }
 
@@ -66,18 +76,24 @@ public class UserController {
 
     @PutMapping("/{id}/password")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public User updateUserPassword(@PathVariable("id") UUID id, @RequestBody ChangePasswordDTO userPassword) {
+    public User updateUserPassword(@PathVariable("id") UUID id, @RequestBody @Validated ChangePasswordDTO userPassword, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
         return userService.updatePassword(id, userPassword);
     }
 
     @PutMapping("/me/password")
-    public User updateMePassword(@AuthenticationPrincipal User user, @RequestBody ChangePasswordDTO userPassword) {
+    public User updateMePassword(@AuthenticationPrincipal User user, @RequestBody @Validated ChangePasswordDTO userPassword, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
         return userService.updatePassword(user.getId(), userPassword);
     }
 
     @PutMapping("/{id}/avatar")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public User updateUserAvatar(@PathVariable("id") UUID id, @RequestParam("file") MultipartFile file) throws IOException {
+    public User updateUserAvatar(@PathVariable("id") UUID id, @RequestParam("avatar") MultipartFile file) throws IOException {
         return userService.updateAvatar(id, file);
     }
 
@@ -88,14 +104,19 @@ public class UserController {
 
     @PutMapping("/{id}/role")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public User updateUserRole(@PathVariable("id") UUID id, @RequestParam("role") String roleString) {
-        UserRole role = UserRole.valueOf(roleString);
-        return userService.updateRole(id, role);
+    public User updateUserRole(@PathVariable("id") UUID id, @RequestBody @Validated Role role, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
+        return userService.updateRole(id, UserRole.valueOf(role.role()));
     }
 
     @PutMapping("/me/role")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public User updateMeRole(@AuthenticationPrincipal User user, @RequestParam("role") String roleString) {
+    public User updateMeRole(@AuthenticationPrincipal User user, @RequestBody @Validated String roleString, BindingResult validation) {
+        if (validation.hasErrors()) {
+            throw new BadRequestException("Invalid data", validation.getAllErrors());
+        }
         UserRole role = UserRole.valueOf(roleString);
         return userService.updateRole(user.getId(), role);
     }

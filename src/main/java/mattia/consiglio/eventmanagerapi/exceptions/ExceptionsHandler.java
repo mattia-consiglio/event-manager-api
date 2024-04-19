@@ -64,6 +64,14 @@ public class ExceptionsHandler {
         return new ErrorDTO("The endpoint " + e.getResourcePath() + " not found", LocalDateTime.now());
     }
 
+
+    //to figure out why this is not working
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorDTO handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ErrorDTO(e.getMessage(), LocalDateTime.now());
+    }
+
     @ExceptionHandler(RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorDTO handleRuntimeException(RuntimeException e) {

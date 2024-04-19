@@ -56,17 +56,20 @@ public class UserService {
 
     public User updateUser(UUID id, UserDTO userDTO) {
         User user = this.getUser(id);
-        if (userRepository.existsByUsernameOrEmail(userDTO.username(), userDTO.email())) {
-            throw new BadRequestException("Username or email already in use");
-        } else if (userRepository.existsByUsername(userDTO.username()) && !userRepository.findById(id).get().getUsername().equals(userDTO.username())) {
+        if (userRepository.existsByUsernameAndEmail(userDTO.username(), userDTO.email()) && !user.getUsername().equals(userDTO.username()) && !user.getEmail().equals(userDTO.email())) {
+            throw new BadRequestException("Username and email already in use");
+        } else if (userRepository.existsByUsername(userDTO.username()) && !user.getUsername().equals(userDTO.username())) {
             throw new BadRequestException("Username already in use");
-        } else if (userRepository.existsByEmail(userDTO.email()) && !userRepository.findById(id).get().getEmail().equals(userDTO.email())) {
+        } else if (userRepository.existsByEmail(userDTO.email()) && !user.getEmail().equals(userDTO.email())) {
             throw new BadRequestException("Email already in use");
         }
         String avatarUrl = "https://ui-avatars.com/api/?name=" + userDTO.firstName().charAt(0) + "+" + userDTO.lastName().charAt(0);
 
         if (!user.getAvatarUrl().startsWith("https://ui-avatars.com/api/")) {
             avatarUrl = user.getAvatarUrl();
+        }
+        if (this.getEventManagersCount() == 1 && UserRole.valueOf(userDTO.role()).equals(UserRole.USER)) {
+            throw new BadRequestException("Cannot remove last event manager");
         }
         user.setUsername(userDTO.username());
         user.setEmail(userDTO.email());
@@ -81,13 +84,14 @@ public class UserService {
 
     public User updateUser(UUID id, NewUserDTO userDTO) {
         User user = this.getUser(id);
-        if (userRepository.existsByUsernameOrEmail(userDTO.username(), userDTO.email())) {
-            throw new BadRequestException("Username or email already in use");
-        } else if (userRepository.existsByUsername(userDTO.username()) && !userRepository.findById(id).get().getUsername().equals(userDTO.username())) {
+        if (userRepository.existsByUsernameAndEmail(userDTO.username(), userDTO.email()) && !user.getUsername().equals(userDTO.username()) && !user.getEmail().equals(userDTO.email())) {
+            throw new BadRequestException("Username and email already in use");
+        } else if (userRepository.existsByUsername(userDTO.username()) && !user.getUsername().equals(userDTO.username())) {
             throw new BadRequestException("Username already in use");
-        } else if (userRepository.existsByEmail(userDTO.email()) && !userRepository.findById(id).get().getEmail().equals(userDTO.email())) {
+        } else if (userRepository.existsByEmail(userDTO.email()) && !user.getEmail().equals(userDTO.email())) {
             throw new BadRequestException("Email already in use");
         }
+
         String avatarUrl = "https://ui-avatars.com/api/?name=" + userDTO.firstName().charAt(0) + "+" + userDTO.lastName().charAt(0);
 
         if (!user.getAvatarUrl().startsWith("https://ui-avatars.com/api/")) {
@@ -110,6 +114,9 @@ public class UserService {
 
     public User updatePassword(UUID id, ChangePasswordDTO changePasswordDTO) {
         User user = this.getUser(id);
+        if (changePasswordDTO.newPassword().equals(changePasswordDTO.oldPassword())) {
+            throw new BadRequestException("New password cannot be the same as the old one");
+        }
         if (!bCrypt.matches(changePasswordDTO.oldPassword(), user.getPassword())) {
             throw new BadRequestException("Old password is incorrect");
         }
@@ -121,6 +128,9 @@ public class UserService {
 
     public User updateRole(UUID id, UserRole role) {
         User user = this.getUser(id);
+        if (this.getEventManagersCount() == 1 && role.equals(UserRole.USER)) {
+            throw new BadRequestException("Cannot remove last event manager");
+        }
         user.setRole(role);
         return userRepository.save(user);
     }
@@ -131,6 +141,14 @@ public class UserService {
         String avatarUrl = (String) cloudinary.uploader().upload(avatar.getBytes(), ObjectUtils.emptyMap()).get("url");
         user.setAvatarUrl(avatarUrl);
         return userRepository.save(user);
+    }
+
+    public boolean eventManagerExists() {
+        return userRepository.existsByRole(UserRole.EVENT_MANAGER);
+    }
+
+    public int getEventManagersCount() {
+        return userRepository.countByRole(UserRole.EVENT_MANAGER);
     }
 
 }

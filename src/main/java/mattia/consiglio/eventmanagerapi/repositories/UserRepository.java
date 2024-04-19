@@ -1,6 +1,7 @@
 package mattia.consiglio.eventmanagerapi.repositories;
 
 import mattia.consiglio.eventmanagerapi.entities.User;
+import mattia.consiglio.eventmanagerapi.entities.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,9 +16,17 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByUsernameOrEmail(String username, String email);
 
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);
 
     boolean existsByUsernameOrEmail(String username, String email);
+
+    boolean existsByUsernameAndEmail(String username, String email);
+
+
+    boolean existsByRole(UserRole role);
+
+    int countByRole(UserRole role);
 }
