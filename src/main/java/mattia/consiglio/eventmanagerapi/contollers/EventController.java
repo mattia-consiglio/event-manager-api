@@ -67,16 +67,16 @@ public class EventController {
         return eventService.getEventsByUser(user.getId(), pageable);
     }
 
+    @PutMapping("/{id}/users/me")
+    @PreAuthorize("hasAuthority('EVENT_MANAGER')")
+    public Event addUserToEvent(@AuthenticationPrincipal User user, @PathVariable UUID id) {
+        return eventService.addUserToEvent(id, user.getId());
+    }
+
     @PutMapping("{id}/users/{userId}")
     @PreAuthorize("hasAuthority('EVENT_MANAGER')")
     public Event addUserToEvent(@PathVariable UUID id, @PathVariable UUID userId) {
         return eventService.addUserToEvent(id, userId);
-    }
-
-    @PutMapping("{id}/users/me")
-    @PreAuthorize("hasAuthority('EVENT_MANAGER')")
-    public Event addUserToEvent(@AuthenticationPrincipal User user, @PathVariable UUID userId) {
-        return eventService.addUserToEvent(user.getId(), userId);
     }
 
     @DeleteMapping("{id}/users/{userId}")

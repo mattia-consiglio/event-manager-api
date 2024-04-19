@@ -64,6 +64,7 @@ public class EventService {
         if (event.getAvailableTickets() == 0) {
             throw new BadRequestException("No tickets available");
         }
+        event.setAvailableTickets(event.getAvailableTickets() - 1);
         event.getUsers().add(user);
         return eventRepository.save(event);
     }
@@ -76,6 +77,7 @@ public class EventService {
             throw new BadRequestException("User not in event");
         }
         event.getUsers().remove(user);
+        event.setAvailableTickets(event.getAvailableTickets() + 1);
         return eventRepository.save(event);
     }
 
